@@ -5,23 +5,28 @@
 // will compile your contracts, add the Hardhat Runtime Environment's members to the
 // global scope, and execute the script.
 const hre = require("hardhat");
-const ethers = require('ethers');
-require('dotenv').config();
+/* const ethers = require('ethers');
+require('dotenv').config(); */
 
 async function main() {
-  const Contract = await hre.ethers.getContractFactory("Emmit");
-  const contract = await Contract.deploy();
+    // The address of the winner contract that we want to call
+  const winnerContractAddress = "0xDe20E9499df78195DC1348c52a9acDC4F08F8e66";
+  // Get the EventWinner contract factory from the hardhat config
+  const EventWinner = await hre.ethers.getContractFactory("EventWinner");
+  // Deploy the EventWinner contract to the blockchain
+  const eventWinner = await EventWinner.deploy();
 
-  await contract.deployed();
+  // Wait for the contract to be deployed
+  await eventWinner.waitForDeployment();
 
-/*   const WinAttempt = await hre.ethers.getContractFactory("WinAttempt");
-  const winattempt = await WinAttempt.deploy(contract.address);
+  // Log the address of the deployed contract to the console
+  console.log(`contract is deployed to ${eventWinner.target}`);
 
-  await winattempt.deployed(); */
+  // Call the callWinner function of the EventWinner contract and pass in the address of the winner contract
+  const tx = await eventWinner.callWinner(winnerContractAddress);
 
-  console.log(
-    `Contract deployed to ${contract.address}` //\nWinAttempt deployed to ${winattempt.address}
-  );
+  // Wait for the transaction to be confirmed on the blockchain
+  await tx.wait();
 }
 
 // We recommend this pattern to be able to use async/await everywhere
